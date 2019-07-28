@@ -32,7 +32,9 @@ public class Producer {
          * Instantiate with a producer group name.
          */
         DefaultMQProducer producer = new DefaultMQProducer("please_rename_unique_group_name");
-
+//        producer.setNamesrvAddr("192.168.137.101:9876;192.168.137.102:9876");
+        producer.setNamesrvAddr("127.0.0.1:9876");
+        producer.setSendMsgTimeout(60000);
         /*
          * Specify name server addresses.
          * <p/>
@@ -50,7 +52,7 @@ public class Producer {
          */
         producer.start();
 
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 10; i++) {
             try {
 
                 /*
@@ -66,7 +68,7 @@ public class Producer {
                  */
                 SendResult sendResult = producer.send(msg);
 
-                System.out.printf("%s%n", sendResult);
+                System.out.printf("sendResult:%s%n", sendResult);
             } catch (Exception e) {
                 e.printStackTrace();
                 Thread.sleep(1000);

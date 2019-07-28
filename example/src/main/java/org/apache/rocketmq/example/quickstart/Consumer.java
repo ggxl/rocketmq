@@ -36,7 +36,9 @@ public class Consumer {
          * Instantiate with specified consumer group name.
          */
         DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("please_rename_unique_group_name_4");
-
+//        consumer.setNamesrvAddr("192.168.137.101:9876;192.168.137.102:9876");
+        consumer.setNamesrvAddr("127.0.0.1:9876");
+        consumer.setConsumeMessageBatchMaxSize(20);//最大批量拉取10条
         /*
          * Specify name server addresses.
          * <p/>
@@ -58,7 +60,7 @@ public class Consumer {
          * Subscribe one more more topics to consume.
          */
         consumer.subscribe("TopicTest", "*");
-
+        boolean flag=true;
         /*
          *  Register callback to execute on arrival of messages fetched from brokers.
          */
@@ -67,7 +69,25 @@ public class Consumer {
             @Override
             public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs,
                 ConsumeConcurrentlyContext context) {
+                StringBuilder sb= new StringBuilder();
+                // 生产上要先启动消费端，在启动生产者，
+                // 如果先启动生产者那么这里的msgs一次消费的数量可能会是小于我们设置的最大批量消费的数量
+                for(MessageExt ms:msgs){
+                    sb.append(new String(ms.getBody()));
+                }
+                System.out.println(Thread.currentThread().getName()+"msgs.size:"+msgs.size()+" body:"+sb.toString());
+
+                for(int i=0,size=msgs.size();i<size;i++){
+                    MessageExt messageExt = msgs.get(i);
+                    System.out.println(Thread.currentThread().getName()+"message:"+new String(messageExt.getBody()));
+                    if(i==2){
+                        System.out.println(Thread.currentThread().getName()+"-------------------------------");
+                        int x = i/0;
+
+                    }
+                }
                 System.out.printf("%s Receive New Messages: %s %n", Thread.currentThread().getName(), msgs);
+
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             }
         });
